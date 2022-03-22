@@ -1,0 +1,66 @@
+pipeline:
+    name: pipelineupdate
+    identifier: pipelineupdate
+    allowStageExecutions: false
+    projectIdentifier: akashgitsync
+    orgIdentifier: default
+    description: test
+    tags: {}
+    stages:
+        - stage:
+              name: s1
+              identifier: s1
+              description: ""
+              type: Approval
+              spec:
+                  execution:
+                      steps:
+                          - step:
+                                type: ShellScript
+                                name: step1
+                                identifier: step1
+                                spec:
+                                    shell: Bash
+                                    onDelegate: true
+                                    source:
+                                        type: Inline
+                                        spec:
+                                            script: echo 1
+                                    environmentVariables: []
+                                    outputVariables: []
+                                    executionTarget: {}
+                                timeout: 10m
+                          - step:
+                                type: Http
+                                name: deploy-connector-secret
+                                identifier: deployconnectorsecret
+                                spec:
+                                    url: https://app.harness.io/gateway/ng/api/v2/secrets?accountIdentifier=vpCkHKsDSxK9_KYfjCTMKA&orgIdentifier=<+pipeline.variables.cppHarnessOrganizationId>&projectIdentifier=<+pipeline.variables.cppPrj>&privateSecret=false
+                                    method: POST
+                                    headers:
+                                        - key: x-api-key
+                                          value: <+secrets.getValue("account.xlcappcppharnesssvcapikey")>
+                                        - key: Content-Type
+                                          value: application/json
+                                    outputVariables: []
+                                    requestBody: '{     "secret": {         "identifier": "deployer<+pipeline.variables.cppCloudProvider><+pipeline.variables.cppOpco><+pipeline.variables.cppEnv>",         "name": "deployer-<+pipeline.variables.cppCloudProvider>-<+pipeline.variables.cppOpco>-<+pipeline.variables.cppEnv>",         "spec": {             "secretManagerIdentifier": "harnessSecretManager",             "valueType": "Inline",             "value": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImFGYkJHcjJ1dG91Y0RQa0g5bWVJeF9qeWxJZ001YXQ1TzllSDRjZ1BTdEkifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiIwMDI0dGhlZi0wMS1kZXYtYXhhLXhsIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImRlZmF1bHQtdG9rZW4tYm42OTIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGVmYXVsdCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjY3MjMzNGZmLTdhNDAtNDZhZC04YjVlLTQ2OTQ2MDNlNGIzNyIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDowMDI0dGhlZi0wMS1kZXYtYXhhLXhsOmRlZmF1bHQifQ.UjdEGLM9cpbtHSuh0uiFM9EBtsMKHDDwjjgo72JnQQDCyRr8OnxJZ49Dv30ydhyhoOpBufHUBGWTiohV7fjTTLOggnHsQSirytk-av-1fu0fHO4mzfkLGmu7ZuNF703cUUh5eTPWm60bfQwsW0kL55oT-Lky0-RzGxhFsLb752U8OlQYDaO6aiP61unKS60K7w4L1UOpFNaSid6OnA9UcOg4_tc52AxPvXhx-mPuWhtFUgCWRJbPGdCQ24UOFi14Xbljs39ucZXO_dljDZaRxO1yVH8ShnQP15rFuYZJO8gWBeyBkjohfMLm0FF3u6IYzlFUveCqIDZNrRzVXiEQiw"         },         "type": "SecretText",         "orgIdentifier": "<+pipeline.variables.cppHarnessOrganizationId>",         "projectIdentifier": "<+pipeline.variables.cppPrj>"     } }'
+                                    assertion: <+httpResponseCode> == 200 || <+httpResponseCode> == 400 && <+json.select("status", httpResponseBody)> == "ERROR" && <+json.select("code", httpResponseBody)> == "INVALID_REQUEST"
+                                timeout: 2m
+                  serviceDependencies: []
+              tags: {}
+    variables:
+        - name: cppHarnessOrganizationId
+          type: String
+          value: default
+        - name: cppPrj
+          type: String
+          value: naidusanity
+        - name: cppCloudProvider
+          type: String
+          value: architTe
+        - name: cppOpco
+          type: String
+          value: one
+        - name: cppEnv
+          type: String
+          value: env1
