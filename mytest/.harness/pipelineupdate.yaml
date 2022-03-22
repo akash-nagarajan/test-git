@@ -4,7 +4,7 @@ pipeline:
     allowStageExecutions: false
     projectIdentifier: akashgitsync
     orgIdentifier: default
-    description: test
+    description: test harness
     tags: {}
     stages:
         - stage:
